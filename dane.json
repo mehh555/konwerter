@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1",
+    "imię": "Łukasz",
+    "nazwisko": "Żółkiewski",
+    "miasto": "Wrocław",
+    "email": "lukasz@example.com",
+    "uwagi": ""
+  },
+  {
+    "id": "2",
+    "imię": "Zofia",
+    "nazwisko": "Gęślarz",
+    "miasto": "Opole",
+    "email": "zofia@example.com",
+    "uwagi": "Lubi kawę, herbatę i ciastka"
+  },
+  {
+    "id": "3",
+    "imię": "Jan",
+    "nazwisko": "Kowalski",
+    "miasto": "Łódź",
+    "email": "",
+    "uwagi": "Brak adresu email"
+  },
+  {
+    "id": "4",
+    "imię": "Małgorzata",
+    "nazwisko": "Świątek",
+    "miasto": "Kraków",
+    "email": "gosia@exam",
+    "uwagi": null
+  }
+]
