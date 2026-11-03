@@ -1,29 +1,35 @@
-from pathlib import Path
-
 from core.errors import ConversionError
 
 REGISTRY = {}
 
-def register(source_ext: str, target_ext: str):
-    def decorator(func):
-        REGISTRY[(source_ext, target_ext)] = func
+
+def register(src, dst):
+    def wrap(func):
+        REGISTRY[src, dst] = func
         return func
-    return decorator
+    return wrap
 
-def available_targets(source: Path) -> list[str]:
-    return [dst for (src,dst) in REGISTRY if src == source.suffix.lower]
 
-def convert(source: Path, target_ext: str, output_dir: Path) -> Path:
-    target_ext = "." + target_ext.lower().lstrip(".")
+def available_targets(path):
+    return sorted(dst for src, dst in REGISTRY if src == path.suffix.lower())
+
+
+def convert(source, fmt, out_dir):
+    fmt = "." + fmt.lower().lstrip(".")
+    func = REGISTRY.get((source.suffix.lower(), fmt))
+
     if not source.is_file():
-        raise ConversionError(f"Nie znaleziono pliku: {source}")
-    if not output_dir.is_dir():
-        raise ConversionError(f"Nie ma katalogu: {output_dir}")
+        raise ConversionError(f"Nie ma pliku {source}")
+    if not out_dir.is_dir():
+        raise ConversionError(f"Nie ma katalogu {out_dir}")
+    if not func:
+        raise ConversionError(f"Nie obsługuję {source.suffix} -> {fmt}")
 
-    func = REGISTRY.get((source.suffix.lower(), target_ext))
-    if func is None:
-        raise ConversionError(f"Nieobsługiwana konwersja: {source.suffix} -> {target_ext}")
-
-    target = output_dir / (source.stem + target_ext)
-    func(source, target)
+    target = out_dir / (source.stem + fmt)
+    try:
+        func(source, target)
+    except UnicodeDecodeError:
+        raise ConversionError("Plik nie jest w UTF-8")
+    except OSError as e:
+        raise ConversionError(f"Błąd pliku: {e}")
     return target
