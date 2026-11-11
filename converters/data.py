@@ -9,16 +9,16 @@ def csv_to_json(src, dst):
     with open(src, encoding="utf-8-sig", newline="") as f:
         first = f.readline()
         if not first.strip():
-            raise ConversionError("Pusty plik CSV")
+            raise ConversionError("Pusty plik CSV - pierwszy wiersz musi zawierać nagłówki kolumn.")
         f.seek(0)
         sep = ";" if first.count(";") > first.count(",") else ","
         try:
             rows = list(csv.DictReader(f, delimiter=sep))
         except csv.Error as e:
-            raise ConversionError(f"Zły CSV: {e}")
+            raise ConversionError(f"Zły CSV: {e}. Sprawdź cudzysłowy w pliku.")
 
     if any(None in row or None in row.values() for row in rows):
-        raise ConversionError("Wiersz ma inną liczbę pól niż nagłówek")
+        raise ConversionError("Wiersz ma inną liczbę pól niż nagłówek. Popraw plik CSV.")
 
     with open(dst, "w", encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=2)
@@ -29,12 +29,14 @@ def json_to_csv(src, dst):
     try:
         data = json.loads(src.read_text(encoding="utf-8-sig"))
     except json.JSONDecodeError as e:
-        raise ConversionError(f"Zły JSON: {e}")
+        raise ConversionError(f"Zły JSON w linii {e.lineno}, kolumnie {e.colno}: {e.msg}. Popraw plik.")
 
     if isinstance(data, dict):
         data = [data]
-    if not data or not isinstance(data, list) or not all(isinstance(x, dict) for x in data):
-        raise ConversionError("JSON ma być listą obiektów")
+    if not isinstance(data, list) or not all(isinstance(x, dict) for x in data):
+        raise ConversionError('JSON ma być listą obiektów, np. [{"imie": "Ala"}, {"imie": "Ola"}].')
+    if not data:
+        raise ConversionError("JSON jest pustą listą - nie ma czego zapisać do CSV.")
 
     cols = list(dict.fromkeys(k for row in data for k in row))
     fix = lambda v: json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list, bool)) else v
