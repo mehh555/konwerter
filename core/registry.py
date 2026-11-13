@@ -71,17 +71,13 @@ def convert(source, fmt, out_dir, overwrite=False):
     if target.exists() and not overwrite:
         target = free_path(target)
 
-    tmp = target.with_name(target.stem + ".tmp" + target.suffix)
     start = time.perf_counter()
     try:
-        func(source, tmp)
-        os.replace(tmp, target)
+        func(source, target)
     except Exception as e:
         error = to_error(e)
-        log.error("%s -> %s: %s", source, ext(fmt), error, exc_info=error is not e)
+        log.error("%s -> %s: %s", source, ext(fmt), error)
         raise error from e
-    finally:
-        tmp.unlink(missing_ok=True)
 
     log.info("%s -> %s (%.2f s)", source, target, time.perf_counter() - start)
     return target

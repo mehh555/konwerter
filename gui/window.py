@@ -34,7 +34,7 @@ class App(tk.Tk):
         self.fmt = tk.StringVar()
         self.combo = ttk.Combobox(fmt_card, textvariable=self.fmt, state="disabled", width=10)
         self.combo.pack(side="left")
-        self.combo.bind("<<ComboboxSelected>>", lambda _: self.set_status("Gotowe do konwersji."))
+        self.combo.bind("<<ComboboxSelected>>", self.format_selected)
         self.preview = ttk.Label(fmt_card, style="CardMuted.TLabel")
         self.preview.pack(side="left", padx=12)
 
@@ -82,6 +82,10 @@ class App(tk.Tk):
             self.set_status("Wybierz format docelowy.")
         else:
             self.set_status(f"Brak konwersji dla plików {path.suffix or 'bez rozszerzenia'}. Wybierz inny plik.", "error")
+
+    def format_selected(self, _):
+        self.combo.selection_clear()
+        self.set_status("Gotowe do konwersji.")
 
     def pick_dir(self):
         path = dialogs.ask_dir()

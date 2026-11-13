@@ -50,4 +50,4 @@ def libreoffice(src, dst):
         out = Path(tmp, src.stem + "." + fmt)
         if res.returncode != 0 or not out.exists():
             raise ConversionError(f"LibreOffice zwrócił kod {res.returncode}: {res.stderr.strip() or 'brak pliku wynikowego'}")
-        shutil.move(out, dst)
+        shutil.copy(out, dst)
