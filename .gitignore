@@ -4,5 +4,6 @@ __pycache__/
 venv/
 .vscode/
 .idea/
+.pytest_cache/
 konwerter.log
 wyniki/
